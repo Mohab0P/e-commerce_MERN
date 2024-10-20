@@ -46,3 +46,36 @@ export const addItemToCart=async({userId,productId,quantity}:IaddItemToCart)=>{
     const updatedCar=await cart.save();
     return {data:updatedCar,statusCode:200};
 }
+
+interface IupdataItemToCart{
+    userId:string;
+    productId:any;
+    quantity:string;
+}
+
+export const updataItemToCart=async({userId,productId,quantity}:IupdataItemToCart)=>{
+    const cart=await getActiveCartForUser({userId});
+    const existInCart=cart.items.find((p)=>p.product.toString()===productId);
+    if(!existInCart){
+        return {data:"Item does not exsit in cart",statusCode:400};
+    }
+    const product=await productModel.findById(productId);
+
+    if(!product){
+        return {data:"Product not found",statusCode:404};
+    }
+    if(product.countInStock < parseInt(quantity)){
+        return {data:"Product out of stock",statusCode:400};
+    }
+    existInCart.quantity=parseInt(quantity); 
+    const otherCartItems=cart.items.filter((p)=>p.product.toString()!==productId);
+    let total=otherCartItems.reduce((acc,product)=>{
+        acc+=product.unitPrice*product.quantity;
+        return acc;
+    },0)
+    total+=existInCart.unitPrice*existInCart.quantity;
+    cart.totalAmount=total;
+    const updatedCart=await cart.save();
+    return {data:updatedCart,statusCode:200};
+
+};
