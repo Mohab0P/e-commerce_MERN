@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import {router} from './routes/userRoute';
 import { seedInitialProducts } from './services/productService';
 import { productRoute } from './routes/productRoute';
+import { cartRouter } from './routes/cartRoute';
 
 const app = express();
 const port = 3001;
@@ -17,6 +18,7 @@ mongoose.connect('mongodb://localhost:27017/ecommerce').then(()=>{console.log('C
 
 app.use(`/user`,router);
 app.use(`/product`,productRoute);  
+app.use('/cart',cartRouter)
 
 
 
