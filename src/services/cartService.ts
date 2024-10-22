@@ -1,5 +1,7 @@
 import { cartModel } from "../models/cartMode";
 import { productModel } from "../models/productModels";
+import { Icurt } from "../models/cartMode";
+import { IcartItem } from "../models/cartMode";
 interface IcreateCartForUser{
     userId:string;
 }
@@ -79,3 +81,31 @@ export const updataItemToCart=async({userId,productId,quantity}:IupdataItemToCar
     return {data:updatedCart,statusCode:200};
 
 };
+
+interface removeItemFromCart{
+    userId:string;
+    productId:any;
+}
+export const removeItemFromCart=async({userId,productId}:removeItemFromCart)=>{
+    const cart=await getActiveCartForUser({userId});
+    const existInCart=cart.items.find((p)=>p.product.toString()===productId);
+    if(!existInCart){
+        return {data:"Item does not exsit in cart",statusCode:400};
+    }
+    const otherCartItems=cart.items.filter((p)=>p.product.toString()!==productId);
+    const total=otherCartItems.reduce((acc,product)=>{
+        acc+=product.unitPrice*product.quantity;
+        return acc;
+    },0)
+    cart.totalAmount=total;
+    const updatedCart=await cart.save();
+    return {data:updatedCart,statusCode:200};
+
+}
+const caluateTotalAmount=({cartItems}):{cartItems:IcartItem[]}=>{
+    const total=cartItems.reduce((acc,product)=>{
+        acc+=product.unitPrice*product.quantity;
+        return acc;
+    },0)
+    return total;
+}
