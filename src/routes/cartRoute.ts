@@ -33,7 +33,7 @@ res.status(response.statusCode).send(response.data);
 
 router.delete("/items/:productId",validateJWT,async(req:ExtendedRequest,res)=>{
 const userId=req.user._id;
-const {id}=req.params;
-const response=await removeItemFromCart({userId, productId: id});
+const {productId}=req.params;
+const response=await removeItemFromCart({userId, productId: productId});
 res.status(response.statusCode).send(response.data);
 })

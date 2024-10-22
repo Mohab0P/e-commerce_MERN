@@ -102,7 +102,7 @@ export const removeItemFromCart=async({userId,productId}:removeItemFromCart)=>{
     return {data:updatedCart,statusCode:200};
 
 }
-const caluateTotalAmount=({cartItems}):{cartItems:IcartItem[]}=>{
+const caluateTotalAmount=({cartItems}:{cartItems:IcartItem[]})=>{
     const total=cartItems.reduce((acc,product)=>{
         acc+=product.unitPrice*product.quantity;
         return acc;
