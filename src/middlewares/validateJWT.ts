@@ -27,7 +27,7 @@ export const validateJWT = (req: ExtendedRequest, res: Response, next: NextFunct
 
     }
 
-    jwt.verify(token, "kcwTGC_#M~(7OXQ.r<8]", async (err, payload) => {
+    jwt.verify(token,process.env.JUT_SECRET_KEY || "", async (err, payload) => {
 
         if (err) {
 

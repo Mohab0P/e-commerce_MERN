@@ -43,5 +43,5 @@ if(passwordMatch){
 }
 
 const generateToken=(data:any)=>{
-return jwt.sign(data,"kcwTGC_#M~(7OXQ.r<8]" ,{expiresIn:"24 h"});
+return jwt.sign(data,process.env.JUT_SECRET_KEY||"",{expiresIn:"24 h"});
 }
