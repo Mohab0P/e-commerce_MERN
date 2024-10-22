@@ -2,6 +2,7 @@ import { cartModel } from "../models/cartMode";
 import { productModel } from "../models/productModels";
 import { Icurt } from "../models/cartMode";
 import { IcartItem } from "../models/cartMode";
+import { IorderItem, orderModel } from "../models/orderModel";
 interface IcreateCartForUser{
     userId:string;
 }
@@ -112,6 +113,53 @@ export const removeItemFromCart=async({userId,productId}:removeItemFromCart)=>{
     return {data:updatedCart,statusCode:200};
 
 }
+interface IcheckoutCart{
+    userId:string;
+    address:string;
+    paymentMethod:string;
+}
+export const checkoutCart=async({userId,address,paymentMethod}:IcheckoutCart)=>{
+    if(!address){
+        return {data:"Address is required",statusCode:400};
+    }
+    if(!paymentMethod){
+        return {data:"Payment method is required",statusCode:400};
+    }
+
+const cart=await getActiveCartForUser({userId});
+const orderItems: IorderItem[]=[];
+// loop cartItems and create orderItems
+for(const item of cart.items){
+const product=await productModel.findById(item.product);
+if(!product){
+    return {data:"Product not found",statusCode:404};
+}
+
+const orderItem:IorderItem={
+    productName:product.name,
+    productImage:product.image,
+    productPrice:product.price,
+    quantity:item.quantity
+}
+orderItems.push(orderItem);
+}
+// create order
+const order=await orderModel.create({
+    orderItems,
+    total:cart.totalAmount,
+    address,
+    userId,
+    paymentMethod
+})
+await order.save();
+//Update cart status to completed
+cart.status="completed";
+await cart.save();
+return {data:order,statusCode:200};
+}
+
+
+
 const caluateTotalAmount=({cartItems}:{cartItems:IcartItem[]})=>{
     const total=cartItems.reduce((acc,product)=>{
         acc+=product.unitPrice*product.quantity;
@@ -119,4 +167,3 @@ const caluateTotalAmount=({cartItems}:{cartItems:IcartItem[]})=>{
     },0)
     return total;
 }
-
